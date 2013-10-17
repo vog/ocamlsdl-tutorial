@@ -1,0 +1,478 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <link href="style.css" type="text/css" rel="stylesheet">
+    <title>OCamlSDL Tutorial</title>
+  </head>
+  <body>
+    <h1>OCamlSDL Tutorial</h1>
+    <dl>
+      <dt>Author</dt>
+      <dd><a href="https://njh.eu/">Volker Grabsch</a></dd>
+      <dt>Proofreading</dt>
+      <dd><a href="http://naa.li/">Frank Prößdorf</a></dd>
+      <dt>Additional information for Mac OSX</dt>
+      <dd>anonymous contributor</dd>
+    </dl>
+    <h2>Contents</h2>
+    <ul>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#installation">Installation</a></li>
+      <li><a href="#testsdl_1">testsdl_1 &ndash; Hello, World!</a></h2>
+      <li><a href="#testsdl_2">testsdl_2 &ndash; Pictures, text and music</a></h2>
+      <li><a href="#testsdl_3">testsdl_3 &ndash; Event handling</a></h2>
+      <li><a href="#testsdl_4">testsdl_4 &ndash; Advanced event handling</a></h2>
+    </ul>
+    <h2 id="introduction">Introduction</h2>
+    <p>
+      If you want to create your own game with
+      2D graphics and sound, the
+      <a href="http://www.libsdl.org/">SDL library</a>
+      is your friend.
+      SDL is available for many operating systems,
+      and SDL has bindings to many programming languages
+      including
+      <a href="http://caml.inria.fr/ocaml/">Objective Caml (OCaml)</a>
+      through the
+      <a href="http://ocamlsdl.sourceforge.net/">OCamlSDL project</a>.
+    </p>
+    <p>
+      An excellent library and an excellent programming language,
+      that leave nothing to be desired.
+      Really?
+      You might have guessed it:
+      There are no SDL tutorials for OCaml.
+      This little howto is no compensation for that,
+      but at least it will assist you in
+      getting started with SDL and Objective Caml.
+    </p>
+    <p>
+      It would be nice to have an SDL tutorial
+      translated from C to OCaml,
+      as it was done for the GTK+ tutorial.
+      Maybe in the future someone will do that work.
+    </p>
+    <h2 id="installation">Installation</h2>
+    <h3>Debian/Etch and Ubuntu/Edgy</h3>
+    <p>
+      All you need is already available.
+      Just install the packages:
+    </p>
+    <pre>aptitude install ocaml-tools libsdl-ocaml-dev</pre>
+    <h3>Mac OSX</h3>
+    <p>
+      For OSX, install
+      <a href="http://www.macports.org/">macports</a>.
+      Then install libsdl from the ports:
+    </p>
+    <pre>sudo port install libsdl libsdl_image libsdl_mixer libsdl_ttf</pre>
+    <p>
+      Now install
+      <a href="http://godi.ocaml-programming.de/">godi</a>.
+      Use godi_console (remember to run with sudo)
+      to install the following packages:
+    </p>
+    <ul>
+      <li>godi-findlib</li>
+      <li>godi-lablgl</li>
+      <li>godi-ocamlmakefile</li>
+      <li>godi-ocamlsdl</li>
+      <li>godi-extlib (not required, but very useful)</li>
+    </ul>
+    <p>
+      The MacOS packages seem to be incompatible with the usual ones.
+      So when you follow this howto,
+      you need to add the following lines to the Makefile:
+    </p>
+    <pre>PACKS = extlib sdl.sdlimage sdl.sdlmixer sdl.sdlttf sdl
+THREADS = true
+OCAMLLDFLAGS = -cclib "-framework Cocoa"</pre>
+    <h3>Other</h3>
+    <p>
+      For other systems there are
+      <a href="http://rpmseek.com/cat/System.html?hl=de&amp;cx=589:O:20">RPM packages at rpmseek</a>.
+    </p>
+    <p>
+      If those don't work,
+      <a href="http://ocamlsdl.sourceforge.net/download.html">download the OCamlSDL sources</a>
+      and compile them yourself.
+    </p>
+    <h2 id="testsdl_1">testsdl_1 &ndash; Hello, World!</h2>
+    <p>
+      Create an empty directory for your application.
+      This directory will contain 3 files:
+    </p>
+    <ul>
+      <li><code>OCamlMakefile</code></li>
+      <li><code>Makefile</code></li>
+      <li><code>testsdl_1.ml</code></li>
+    </ul>
+    <p>
+      If you have a system wide installed <code>OCamlMakefile</code>,
+      just symlink it.
+    </p>
+    <p>
+      The command for Debian and Ubuntu is:
+    </p>
+    <pre>ln -s /usr/share/ocaml-tools/OCamlMakefile .</pre>
+    <p>
+      If you don't have an OCamlMakefile on your system,
+      download it from the
+      <a href="http://www.ocaml.info/home/ocaml_sources.html">OCamlMakefile project</a>:
+    </p>
+    <pre>wget <a href="http://www.ocaml.info/ocaml_sources/ocaml-make-6.24.8/OCamlMakefile">http://www.ocaml.info/ocaml_sources/ocaml-make-6.24.8/OCamlMakefile</a></pre>
+    <p>
+      Now create a <code>Makefile</code> for your project:
+    </p>
+    <pre>RESULT     = testsdl_1
+SOURCES    = testsdl_1.ml
+LIBS       = bigarray sdl
+INCDIRS    = +sdl
+
+include OCamlMakefile</pre>
+    <p>
+      Don't omit the <code>bigarray</code> library.
+      It is needed by SDL.
+    </p>
+    <p>
+      Now it's time for the OCaml source file <code>testsdl_1.ml</code>:
+    </p>
+    <pre>let main () =
+    Sdl.init [`VIDEO];
+    Sdlvideo.set_video_mode 200 200 [];
+    Sdltimer.delay 2000;
+    Sdl.quit ()
+
+let _ = main ()</pre>
+    <p>
+      Compile and run it:
+    </p>
+    <pre>make
+./testsdl_1</pre>
+    <p>
+      This small application
+      opens a black window of the size 200x200 pixel,
+      which stays for 2 seconds (2000ms),
+      and then quits.
+    </p>
+    <p>
+      It is very important that you don't forget to call
+    </p>
+    <pre>Sdl.quit ()</pre>
+    <p>
+      at the end of your program.
+    </p>
+    <h2 id="testsdl_2">testsdl_2 &ndash; Pictures, text and music</h2>
+    <p>
+      This example shows SDL's ability to handle
+      pictures,
+      text and
+      music.
+    </p>
+    <p>
+      Create another directory
+      and populate it with an <code>OCamlMakefile</code>
+      as you did in the last section.
+    </p>
+    <p>
+      Now create an OCaml source file <code>testsdl_2.ml</code>:
+    </p>
+    <pre>let image_filename = "testsdl_2.jpg"
+let font_filename  = "testsdl_2.ttf"
+let music_filename = "testsdl_2.mp3"
+
+let run () =
+    let screen = Sdlvideo.set_video_mode 400 400 [`DOUBLEBUF] in
+    let image = Sdlloader.load_image image_filename in
+    let font = Sdlttf.open_font font_filename 24 in
+    let text = Sdlttf.render_text_blended font "Enjoy!" ~fg:Sdlvideo.white in
+    let music = Sdlmixer.load_music music_filename in
+    let position_of_image = Sdlvideo.rect 0 0 300 300 in
+    let position_of_text = Sdlvideo.rect 300 0 300 300 in
+    Sdlvideo.blit_surface ~dst_rect:position_of_image ~src:image ~dst:screen ();
+    Sdlvideo.blit_surface ~dst_rect:position_of_text ~src:text ~dst:screen ();
+    Sdlvideo.flip screen;
+    Sdlmixer.fadein_music music 1.0;
+    Sdltimer.delay 1000; (* fade in *)
+    Sdltimer.delay 6000; (* play *)
+    Sdlmixer.fadeout_music 2.0;
+    Sdltimer.delay 2000; (* fade out *)
+    Sdlmixer.halt_music ();
+    Sdlmixer.free_music music
+
+let main () =
+    Sdl.init [`VIDEO; `AUDIO];
+    at_exit Sdl.quit;
+    Sdlttf.init ();
+    at_exit Sdlttf.quit;
+    Sdlmixer.open_audio ();
+    at_exit Sdlmixer.close_audio;
+    run ()
+
+let _ = main ()</pre>
+    <p>
+      The code ensures that
+      even in the case of an exception
+      the functions
+      <code>Sdl.quit</code>,
+      <code>Sdlttf.quit</code> and
+      <code>Sdlmixer.close_audio</code>
+      are called.
+      They are the necessary counterparts to
+      <code>Sdl.init</code>,
+      <code>Sdlttf.init</code> and
+      <code>Sdlmixer.open_audio</code>.
+    </p>
+    <p>
+      This little program
+      shows an image,
+      shows a text and
+      plays a sound file,
+      so put your favourite
+      picture,
+      font and
+      music into the directory
+      and name them:
+    </p>
+    <ul>
+      <li><code>testsdl_2.jpg</code></li>
+      <li><code>testsdl_2.ttf</code></li>
+      <li><code>testsdl_2.mp3</code></li>
+    </ul>
+    <p>
+      You can also use a PNG graphic <code>testsdl_2.png</code>
+      and a MOD music file <code>testsdl_2.mod</code>
+      if you change the source code accordingly.
+    </p>
+    <p>
+      The <code>Makefile</code> is the same as in the last example,
+      except that you need to include some additional libraries:
+    </p>
+    <pre>RESULT     = testsdl_2
+SOURCES    = testsdl_2.ml
+LIBS       = bigarray sdl sdlloader sdlttf sdlmixer
+INCDIRS    = +sdl
+
+include OCamlMakefile</pre>
+    <p>
+      The extra libraries are:
+    </p>
+    <dl>
+      <dt>sdlloader</dt>
+      <dd>load images other than BMP</dd>
+      <dt>sdlttf</dt>
+      <dd>load fonts and render text</dd>
+      <dt>sdlmixer</dt>
+      <dd>load and play sound files other than WAV</dd>
+    </dl>
+    <p>
+      By now,
+      your directory contains 6 files:
+    </p>
+    <ul>
+      <li><code>OCamlMakefile</code></li>
+      <li><code>Makefile</code></li>
+      <li><code>testsdl_2.ml</code></li>
+      <li><code>testsdl_2.jpg</code></li>
+      <li><code>testsdl_2.ttf</code></li>
+      <li><code>testsdl_2.mp3</code></li>
+    </ul>
+    <p>
+      Last but not least,
+      compile and run your program:
+    </p>
+    <pre>make
+./testsdl_2</pre>
+    <p>
+      You will
+      see the picture,
+      see the text
+      and hear the music.
+      Enjoy!
+    </p>
+    <h2 id="testsdl_3">testsdl_3 &ndash; Event handling</h2>
+    <p>
+      This example demonstrates SDL's ability to handle user input.
+    </p>
+    <p>
+      Create yet another directory
+      with an <code>OCamlMakefile</code>
+      and a simple <code>Makefile</code>:
+    </p>
+    <pre>RESULT     = testsdl_3
+SOURCES    = testsdl_3.ml
+LIBS       = bigarray sdl
+INCDIRS    = +sdl
+
+include OCamlMakefile</pre>
+    <p>
+      Now create an OCaml source file <code>testsdl_3.ml</code>:
+    </p>
+    <pre>open Sdlevent
+open Sdlkey
+
+let rec wait_for_escape () =
+    match wait_event () with
+    | KEYDOWN {keysym=KEY_ESCAPE} ->
+        print_endline "You pressed escape! The fun is over now."
+    | event ->
+        print_endline (string_of_event event);
+        wait_for_escape ()
+
+let main () =
+    Sdl.init [`VIDEO];
+    at_exit Sdl.quit;
+    ignore (Sdlvideo.set_video_mode 200 200 []);
+    wait_for_escape ()
+
+let _ = main ()</pre>
+    <p>
+      This code shows how well
+      the event handling
+      plays together with
+      OCaml's pattern matching.
+    </p>
+    <p>
+      Compile and run the program:
+    </p>
+    <pre>make
+./testsdl_3</pre>
+    <p>
+      As usual, this opens a window.
+      Press some keys, move the mouse and click into the window.
+      You'll see that every event is reported at the command line.
+      Play with this until you are bored,
+      then press the <code>Escape</code> key.
+    </p>
+    <p>
+      <strong>Note:</strong>
+      In OCaml
+      it is generally not advisable to use <code>open</code>
+      without a good reason,
+      as it is poisoning your program's namespace.
+      However, the modules <code>Sdlevent</code> and <code>Sdlkey</code> are good exceptions:
+    </p>
+    <pre>open Sdlevent
+open Sdlkey</pre>
+    <p>
+      Without these lines, the code would suffer readability:
+    </p>
+    <pre>let rec wait_for_escape () =
+    match Sdlevent.wait_event () with
+    | Sdlevent.KEYDOWN {Sdlevent.keysym=Sdlkey.KEY_ESCAPE} ->
+        print_endline "You pressed escape! The fun is over now."
+    | event ->
+        print_endline (Sdlevent.string_of_event event);
+        wait_for_escape ()</pre>
+    <h2 id="testsdl_4">testsdl_4 &ndash; Advanced event handling</h2>
+    <p>
+      This example shows how to implement
+      your own simple text input field with SDL.
+    </p>
+    <p>
+      Once again, create a directory and populate it with
+    </p>
+    <ul>
+      <li><code>OCamlMakefile</code></li>
+      <li><code>Makefile</code></li>
+      <li><code>testsdl_4.ml</code></li>
+      <li><code>testsdl_4.ttf</code></li>
+    </ul>
+    <p>
+      where <code>OCamlMakefile</code> is the usual one
+      and <code>testsdl_4.ttf</code> your exciting new favourite font.
+    </p>
+    <p>
+      The <code>Makefile</code> is not so exciting:
+    </p>
+    <pre>RESULT     = testsdl_4
+SOURCES    = testsdl_4.ml
+LIBS       = bigarray sdl sdlttf
+INCDIRS    = +sdl
+
+include OCamlMakefile</pre>
+    <p>
+      The OCaml source file <code>testsdl_4.ml</code> looks like this:
+    </p>
+    <pre>open Sdlevent
+open Sdlkey
+
+let read_string ?(default="") show_string =
+    let rec read_more_of s =
+        show_string s;
+        match wait_event (), s with
+        | KEYDOWN {keysym=KEY_ESCAPE}, _ ->
+            None
+        | KEYDOWN {keysym=KEY_RETURN}, s ->
+            Some s
+        | KEYDOWN {keysym=KEY_BACKSPACE}, "" ->
+            read_more_of ""
+        | KEYDOWN {keysym=KEY_BACKSPACE}, s ->
+            read_more_of (String.sub s 0 (String.length s - 1))
+        | KEYDOWN {keycode='a'..'z'|'A'..'Z'|'0'..'9'|' ' as keycode}, s ->
+            let string_of_key = String.make 1 keycode in
+            read_more_of (s ^ string_of_key)
+        | _, s ->
+            read_more_of s
+    in
+    read_more_of default
+
+let simple_show_string screen font s =
+    let s = match s with
+        | "" -> " " (* render_text functions don't like empty strings *)
+        | _  -> s in
+    let background_color = match s with
+        | "SDL" -> Sdlvideo.yellow
+        | _     -> Sdlvideo.white in
+    let text = Sdlttf.render_text_blended font s ~fg:Sdlvideo.black in
+    Sdlvideo.fill_rect screen (Sdlvideo.map_RGB screen background_color);
+    Sdlvideo.blit_surface ~src:text ~dst:screen ();
+    Sdlvideo.flip screen
+
+let run () =
+    let screen = Sdlvideo.set_video_mode 600 50 [`DOUBLEBUF] in
+    let font = Sdlttf.open_font "testsdl_4.ttf" 24 in
+    let show_string = simple_show_string screen font in
+    match read_string show_string with
+    | Some s ->
+        show_string ("You entered: '" ^ s ^ "'");
+        Sdltimer.delay 1000
+    | None ->
+        show_string "You escaped the entry field. Wimp!";
+        Sdltimer.delay 2000
+
+let main () =
+    Sdl.init [`VIDEO];
+    at_exit Sdl.quit;
+    Sdlttf.init ();
+    at_exit Sdlttf.quit;
+    Sdlkey.enable_unicode true;
+    Sdlkey.enable_key_repeat ();
+    run ()
+
+let _ = main ()</pre>
+    <p>
+      Compile and run the program:
+    </p>
+    <pre>make
+./testsdl_4</pre>
+    <p>
+      It opens a window where you can enter text.
+      The keys
+      <code>Return</code>,
+      <code>Escape</code> and
+      <code>Backspace</code>
+      work as you'd expect.
+      Some special behaviour is implemented when
+      you are entering "SDL".
+      Have fun!
+    </p>
+    <footer>
+      <a href="https://njh.eu/">&#x2190; Not Just Hacking</a>
+    </footer>
+    <a href="https://github.com/vog/ocamlsdl-tutorial" target="_blank">
+      <img class="ribbon" src="forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub">
+    </a>
+  </body>
+</html>
